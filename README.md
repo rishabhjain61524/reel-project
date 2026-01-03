@@ -23,6 +23,6 @@ Configured Vercel Environment Variables (like JWT_SECRET and MONGODB_URI) to res
 UI Performance: Utilized React State Hooks to implement optimistic updates for "Like" and "Save" actions, providing immediate visual feedback without page reloads.
 
 3. Production Links
-Live Frontend: https://reels-project-j1zm.vercel.app/
+Live Frontend: https://reel-project-99y2.vercel.app
 
-Backend API: https://reels-project-one.vercel.app/
+Backend API: https://reels-project-one.vercel.app
