@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../../styles/auth-shared.css';
-import axios from 'axios';
+import api from '../api/api'; // Correctly importing your central hub
 import { useNavigate } from 'react-router-dom';
 
 const UserRegister = () => {
@@ -16,20 +16,22 @@ const UserRegister = () => {
         const email = e.target.email.value;
         const password = e.target.password.value;
 
+        try {
+            // Changed 'axios' to 'api' to support Vercel deployment
+            const response = await api.post("/api/auth/user/register", {
+                fullName: firstName + " " + lastName,
+                email,
+                password
+            });
 
-        const response = await axios.post("http://localhost:3000/api/auth/user/register", {
-            fullName: firstName + " " + lastName,
-            email,
-            password
-        },
-        {
-            withCredentials: true
-        })
+            console.log("Registration Successful:", response.data);
+            navigate("/"); // Redirect to home after successful registration
 
-        console.log(response.data);
-
-        navigate("/")
-
+        } catch (error) {
+            // Catching errors to prevent the UI from crashing
+            console.error("Registration Error:", error.response?.data || error.message);
+            alert(error.response?.data?.message || "Registration failed. Please try again.");
+        }
     };
 
     return (
@@ -46,20 +48,20 @@ const UserRegister = () => {
                     <div className="two-col">
                         <div className="field-group">
                             <label htmlFor="firstName">First Name</label>
-                            <input id="firstName" name="firstName" placeholder="Jane" autoComplete="given-name" />
+                            <input id="firstName" name="firstName" placeholder="Jane" autoComplete="given-name" required />
                         </div>
                         <div className="field-group">
                             <label htmlFor="lastName">Last Name</label>
-                            <input id="lastName" name="lastName" placeholder="Doe" autoComplete="family-name" />
+                            <input id="lastName" name="lastName" placeholder="Doe" autoComplete="family-name" required />
                         </div>
                     </div>
                     <div className="field-group">
                         <label htmlFor="email">Email</label>
-                        <input id="email" name="email" type="email" placeholder="you@example.com" autoComplete="email" />
+                        <input id="email" name="email" type="email" placeholder="you@example.com" autoComplete="email" required />
                     </div>
                     <div className="field-group">
                         <label htmlFor="password">Password</label>
-                        <input id="password" name="password" type="password" placeholder="••••••••" autoComplete="new-password" />
+                        <input id="password" name="password" type="password" placeholder="••••••••" autoComplete="new-password" required />
                     </div>
                     <button className="auth-submit" type="submit">Sign Up</button>
                 </form>

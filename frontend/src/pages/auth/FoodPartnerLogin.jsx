@@ -1,10 +1,10 @@
 import React from 'react';
 import '../../styles/auth-shared.css';
-import axios from 'axios';
+// Import your central API hub
+import api from '../api/api'; 
 import { useNavigate } from 'react-router-dom';
 
 const FoodPartnerLogin = () => {
-
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -13,15 +13,24 @@ const FoodPartnerLogin = () => {
     const email = e.target.email.value;
     const password = e.target.password.value;
 
-    const response = await axios.post("http://localhost:3000/api/auth/food-partner/login", {
-      email,
-      password
-    }, { withCredentials: true });
+    try {
+      // Changed 'axios' to 'api' to use your Vercel/Local environment variables
+      // We removed { withCredentials: true } because it's already in your api.js
+      const response = await api.post("/api/auth/food-partner/login", {
+        email,
+        password
+      });
 
-    console.log(response.data);
+      console.log("Login Successful:", response.data);
+      
+      // Redirect to create food page after login
+      navigate("/create-food"); 
 
-    navigate("/create-food"); // Redirect to create food page after login
-
+    } catch (error) {
+      // Handle errors (like wrong password) so the app doesn't crash
+      console.error("Login failed:", error.response?.data || error.message);
+      alert(error.response?.data?.message || "Invalid credentials. Please try again.");
+    }
   };
 
   return (
@@ -34,11 +43,25 @@ const FoodPartnerLogin = () => {
         <form className="auth-form" onSubmit={handleSubmit} noValidate>
           <div className="field-group">
             <label htmlFor="email">Email</label>
-            <input id="email" name="email" type="email" placeholder="business@example.com" autoComplete="email" />
+            <input 
+              id="email" 
+              name="email" 
+              type="email" 
+              placeholder="business@example.com" 
+              autoComplete="email" 
+              required 
+            />
           </div>
           <div className="field-group">
             <label htmlFor="password">Password</label>
-            <input id="password" name="password" type="password" placeholder="Password" autoComplete="current-password" />
+            <input 
+              id="password" 
+              name="password" 
+              type="password" 
+              placeholder="Password" 
+              autoComplete="current-password" 
+              required 
+            />
           </div>
           <button className="auth-submit" type="submit">Sign In</button>
         </form>

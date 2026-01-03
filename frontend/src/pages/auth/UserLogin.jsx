@@ -1,6 +1,7 @@
 import React from 'react';
 import '../../styles/auth-shared.css';
-import axios from 'axios';
+// We use the central 'api' instance to handle the URL switch for Vercel
+import api from '../api/api'; 
 import { useNavigate } from 'react-router-dom';
 
 const UserLogin = () => {
@@ -13,15 +14,22 @@ const UserLogin = () => {
     const email = e.target.email.value;
     const password = e.target.password.value;
 
-    const response = await axios.post("http://localhost:3000/api/auth/user/login", {
-      email,
-      password
-    }, { withCredentials: true });
+    try {
+      // Changed 'axios' to 'api'
+      // Removed manual { withCredentials: true } as it is defined in api.js
+      const response = await api.post("/api/auth/user/login", {
+        email,
+        password
+      });
 
-    console.log(response.data);
+      console.log("User Login Successful:", response.data);
+      navigate("/"); // Redirect to home after login
 
-    navigate("/"); // Redirect to home after login
-
+    } catch (error) {
+      // Logic to catch 401/500 errors so the UI stays stable
+      console.error("Login Error:", error.response?.data || error.message);
+      alert(error.response?.data?.message || "Login failed. Please check your credentials.");
+    }
   };
 
   return (
@@ -34,11 +42,25 @@ const UserLogin = () => {
         <form className="auth-form" onSubmit={handleSubmit} noValidate>
           <div className="field-group">
             <label htmlFor="email">Email</label>
-            <input id="email" name="email" type="email" placeholder="you@example.com" autoComplete="email" />
+            <input 
+              id="email" 
+              name="email" 
+              type="email" 
+              placeholder="you@example.com" 
+              autoComplete="email" 
+              required 
+            />
           </div>
           <div className="field-group">
             <label htmlFor="password">Password</label>
-            <input id="password" name="password" type="password" placeholder="••••••••" autoComplete="current-password" />
+            <input 
+              id="password" 
+              name="password" 
+              type="password" 
+              placeholder="••••••••" 
+              autoComplete="current-password" 
+              required 
+            />
           </div>
           <button className="auth-submit" type="submit">Sign In</button>
         </form>

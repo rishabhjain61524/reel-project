@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import axios from 'axios';
+import api from '../api/api'; // Importing your central hub
 import '../../styles/create-food.css';
 import { useNavigate } from 'react-router-dom';
 
@@ -51,19 +51,23 @@ const CreateFood = () => {
         e.preventDefault();
 
         const formData = new FormData();
-
         formData.append('name', name);
         formData.append('description', description);
         formData.append("video", videoFile);
 
-        const response = await axios.post("http://localhost:3000/api/food", formData, {
-            withCredentials: true,
-        })
+        try {
+            // Changed 'axios' to 'api' to use Vercel URL
+            // We keep the request headers logic simple as 'api' handles defaults
+            const response = await api.post("/api/food", formData);
 
-        console.log(response.data);
-        navigate("/"); // Redirect to home or another page after successful creation
-        // Optionally reset
-        // setName(''); setDescription(''); setVideoFile(null);
+            console.log("Upload Successful:", response.data);
+            navigate("/"); 
+
+        } catch (error) {
+            // Video uploads can often fail due to size limits
+            console.error("Upload Error:", error.response?.data || error.message);
+            alert(error.response?.data?.message || "Failed to upload video. Please try again.");
+        }
     };
 
     const isDisabled = useMemo(() => !name.trim() || !videoFile, [ name, videoFile ]);
