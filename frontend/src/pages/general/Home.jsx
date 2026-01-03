@@ -34,7 +34,7 @@ const Home = () => {
         // ✅ RECRUITER GUARD: Redirect to login if they try to like without an account
         if (!token) {
             alert("Please login to like videos!");
-            navigate('/login');
+            navigate('/user/login');
             return;
         }
 
@@ -57,7 +57,7 @@ const Home = () => {
         // ✅ RECRUITER GUARD: Redirect to login if they try to save without an account
         if (!token) {
             alert("Please login to save videos!");
-            navigate('/login');
+            navigate('/user/login');
             return;
         }
 
