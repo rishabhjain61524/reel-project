@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import api from '../api/api'; // Using your central hub for Vercel support
+ import api from '../../api/api';// Using your central hub for Vercel support
 import '../../styles/reels.css'
 import ReelFeed from '../../components/ReelFeed'
 

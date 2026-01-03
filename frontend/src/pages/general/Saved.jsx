@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import '../../styles/reels.css'
 // Use the central api instance for Vercel deployment
-import api from '../api/api'; 
+ import api from '../../api/api';
 import ReelFeed from '../../components/ReelFeed'
 
 const Saved = () => {
