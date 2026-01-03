@@ -2,8 +2,10 @@ require('dotenv').config();
 const app = require('./src/app');
 const connectDB = require('./src/db/db');
 
-// Connect to DB
-connectDB();
+// ✅ Trigger the async connection and handle potential errors
+connectDB().catch(err => {
+    console.error("Critical Database Connection Error:", err);
+});
 
 // Only listen locally, not in production
 if (process.env.NODE_ENV !== 'production') {
