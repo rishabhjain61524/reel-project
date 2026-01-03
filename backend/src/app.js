@@ -11,7 +11,7 @@ const app = express();
 app.use(cors({
     origin: [
         process.env.FRONTEND_URL, 
-        "https://reel-project-nine.vercel.app", // Your specific frontend URL
+        "https://reel-project-99y2.vercel.app", // Your specific frontend URL
         "http://localhost:5173"                // Local development
     ],
     credentials: true,
