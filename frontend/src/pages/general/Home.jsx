@@ -1,42 +1,50 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom' // ✅ Added for redirection
 import api from '../../apoi/api.js'
 import '../../styles/reels.css'
 import ReelFeed from '../../components/ReelFeed'
 
 const Home = () => {
     const [videos, setVideos] = useState([])
-    const [loading, setLoading] = useState(true) // ✅ Added loading state
+    const [loading, setLoading] = useState(true)
+    const navigate = useNavigate() // ✅ Initialize navigate
 
     useEffect(() => {
         const fetchVideos = async () => {
             try {
                 setLoading(true);
-                // ✅ Using api.get ensures the Bearer token from api.js is attached
+                // Now this works for everyone (Guests and Logged-in users)
                 const response = await api.get("/api/food");
                 
-                // ✅ Added check to handle nested data correctly
                 const foodData = response.data.foodItems || response.data;
-                setVideos(foodData);
+                setVideos(Array.isArray(foodData) ? foodData : []);
             } catch (error) {
                 console.error("Error fetching food feed:", error);
             } finally {
-                setLoading(false); // ✅ Stop loading regardless of outcome
+                setLoading(false);
             }
         };
 
         fetchVideos();
     }, [])
 
-    // ✅ Optimistic UI Update: Update the heart instantly before the server responds
     async function likeVideo(item) {
+        const token = localStorage.getItem('token');
+
+        // ✅ RECRUITER GUARD: Redirect to login if they try to like without an account
+        if (!token) {
+            alert("Please login to like videos!");
+            navigate('/login');
+            return;
+        }
+
         try {
             const response = await api.post("/api/food/like", { foodId: item._id });
             
-            // Re-sync with server response
             if (response.data.like) {
-                setVideos((prev) => prev.map((v) => v._id === item._id ? { ...v, likeCount: v.likeCount + 1 } : v));
+                setVideos((prev) => prev.map((v) => v._id === item._id ? { ...v, likeCount: (v.likeCount || 0) + 1 } : v));
             } else {
-                setVideos((prev) => prev.map((v) => v._id === item._id ? { ...v, likeCount: Math.max(0, v.likeCount - 1) } : v));
+                setVideos((prev) => prev.map((v) => v._id === item._id ? { ...v, likeCount: Math.max(0, (v.likeCount || 0) - 1) } : v));
             }
         } catch (error) {
             console.error("Error liking video:", error);
@@ -44,19 +52,27 @@ const Home = () => {
     }
 
     async function saveVideo(item) {
+        const token = localStorage.getItem('token');
+
+        // ✅ RECRUITER GUARD: Redirect to login if they try to save without an account
+        if (!token) {
+            alert("Please login to save videos!");
+            navigate('/login');
+            return;
+        }
+
         try {
             const response = await api.post("/api/food/save", { foodId: item._id });
             if (response.data.save) {
-                setVideos((prev) => prev.map((v) => v._id === item._id ? { ...v, savesCount: v.savesCount + 1 } : v));
+                setVideos((prev) => prev.map((v) => v._id === item._id ? { ...v, savesCount: (v.savesCount || 0) + 1 } : v));
             } else {
-                setVideos((prev) => prev.map((v) => v._id === item._id ? { ...v, savesCount: Math.max(0, v.savesCount - 1) } : v));
+                setVideos((prev) => prev.map((v) => v._id === item._id ? { ...v, savesCount: Math.max(0, (v.savesCount || 0) - 1) } : v));
             }
         } catch (error) {
             console.error("Error saving video:", error);
         }
     }
 
-    // ✅ Handle the "First Visit" experience properly
     if (loading) {
         return (
             <div className="flex items-center justify-center h-screen bg-black text-white">
@@ -71,7 +87,7 @@ const Home = () => {
             items={videos}
             onLike={likeVideo}
             onSave={saveVideo}
-            emptyMessage={loading ? "Loading..." : "No food reels available. Check back soon!"}
+            emptyMessage="No food reels available. Check back soon!"
         />
     )
 }
