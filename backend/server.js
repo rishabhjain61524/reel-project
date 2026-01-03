@@ -2,7 +2,7 @@ require('dotenv').config();
 const app = require('./src/app');
 const connectDB = require('./src/db/db');
 
-// Connect to DB (Vercel calls this every time the function wakes up)
+// Connect to DB
 connectDB();
 
 // Only listen locally, not in production
@@ -12,4 +12,5 @@ if (process.env.NODE_ENV !== 'production') {
     });
 }
 
-module.exports = app; // This is the most important line for Vercel
+// DO NOT export connectDB here. Only export the app!
+module.exports = app;
