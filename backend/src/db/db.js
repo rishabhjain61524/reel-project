@@ -1,16 +1,23 @@
-require('dotenv').config();
-const app = require('./src/app');
-const connectDB = require('./src/db/db');
+const mongoose = require('mongoose');
 
-// Connect to DB
-connectDB();
+const connectDB = async () => {
+    // 1. Check if we already have a connection (essential for Vercel/Serverless)
+    if (mongoose.connection.readyState >= 1) {
+        return;
+    }
 
-// Only listen locally, not in production
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(3000, () => {
-        console.log("Server is running on port 3000");
-    });
-}
+    try {
+        // 2. Use 'await' to ensure the connection is established BEFORE continuing
+        await mongoose.connect(process.env.MONGODB_URI, {
+            // This tells Mongoose to fail faster if the IP is blocked
+            serverSelectionTimeoutMS: 5000, 
+        });
+        console.log("✅ MongoDB connected successfully");
+    } catch (err) {
+        console.error("❌ MongoDB connection error:", err.message);
+        // On Vercel, don't use process.exit(1); just let the error throw
+        throw err; 
+    }
+};
 
-// DO NOT export connectDB here. Only export the app!
-module.exports = app; 
+module.exports = connectDB;
