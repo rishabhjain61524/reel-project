@@ -1,87 +1,77 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
 import '../../styles/auth-shared.css';
-// Fixed Path: Two sets of dots to go up from auth -> pages -> src
-import api from '../../api/api'; 
+// ✅ FIX: Path changed from 'api' to 'apoi' to match your folder structure
+import api from '../../apoi/api.js'; 
 import { useNavigate } from 'react-router-dom';
 
 const FoodPartnerRegister = () => {
   const navigate = useNavigate();
-  
-  const handleSubmit = async (e) => { 
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    businessName: '',
+    phoneNumber: ''
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const businessName = e.target.businessName.value;
-    const contactName = e.target.contactName.value;
-    const phone = e.target.phone.value;
-    const email = e.target.email.value;
-    const password = e.target.password.value;
-    const address = e.target.address.value;
-
     try {
-      // Replaced 'axios' with 'api'
-      // Removed manual { withCredentials: true } as it is in your api.js
-      const response = await api.post("/api/auth/food-partner/register", {
-        name: businessName,
-        contactName,
-        phone,
-        email,
-        password,
-        address
-      });
+      const response = await api.post("/api/auth/food-partner/register", formData);
+      
+      console.log("Partner Registration Successful:", response.data);
 
-      console.log("Partner Registered:", response.data);
+      // ✅ FIX: Save token so the next request is authorized
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('role', 'partner');
+      }
+
+      alert("Registration successful! Welcome aboard.");
       navigate("/create-food"); 
 
     } catch (error) {
-      // Added error handling to prevent UI crashes during deployment
-      console.error("Registration error:", error.response?.data || error.message);
-      alert(error.response?.data?.message || "Error registering partner. Please try again.");
+      console.error("Registration Error:", error.response?.data || error.message);
+      alert(error.response?.data?.message || "Registration failed. Please try again.");
     }
   };
 
   return (
     <div className="auth-page-wrapper">
-      <div className="auth-card" role="region" aria-labelledby="partner-register-title">
+      <div className="auth-card">
         <header>
-          <h1 id="partner-register-title" className="auth-title">Partner sign up</h1>
-          <p className="auth-subtitle">Grow your business with our platform.</p>
+          <h1 className="auth-title">Partner with us</h1>
+          <p className="auth-subtitle">Create a business account to start sharing food.</p>
         </header>
-        <nav className="auth-alt-action" style={{marginTop: '-4px'}}>
-          <strong style={{fontWeight:600}}>Switch:</strong> <Link to="/user/register">User</Link> • <Link to="/food-partner/register">Food partner</Link>
-        </nav>
-        <form className="auth-form" onSubmit={handleSubmit} noValidate>
+        <form className="auth-form" onSubmit={handleSubmit}>
           <div className="field-group">
-            <label htmlFor="businessName">Business Name</label>
-            <input id="businessName" name="businessName" placeholder="Tasty Bites" autoComplete="organization" required />
-          </div>
-          <div className="two-col">
-            <div className="field-group">
-              <label htmlFor="contactName">Contact Name</label>
-              <input id="contactName" name="contactName" placeholder="Jane Doe" autoComplete="name" required />
-            </div>
-            <div className="field-group">
-              <label htmlFor="phone">Phone</label>
-              <input id="phone" name="phone" placeholder="+1 555 123 4567" autoComplete="tel" required />
-            </div>
-          </div>
-            <div className="field-group">
-              <label htmlFor="email">Email</label>
-              <input id="email" name="email" type="email" placeholder="business@example.com" autoComplete="email" required />
-            </div>
-          <div className="field-group">
-            <label htmlFor="password">Password</label>
-            <input id="password" name="password" type="password" placeholder="Create password" autoComplete="new-password" required />
+            <label>Full Name</label>
+            <input name="name" type="text" onChange={handleChange} required />
           </div>
           <div className="field-group">
-            <label htmlFor="address">Address</label>
-            <input id="address" name="address" placeholder="123 Market Street" autoComplete="street-address" required />
-            <p className="small-note">Full address helps customers find you faster.</p>
+            <label>Business Name</label>
+            <input name="businessName" type="text" onChange={handleChange} required />
           </div>
-          <button className="auth-submit" type="submit">Create Partner Account</button>
+          <div className="field-group">
+            <label>Email</label>
+            <input name="email" type="email" onChange={handleChange} required />
+          </div>
+          <div className="field-group">
+            <label>Phone Number</label>
+            <input name="phoneNumber" type="text" onChange={handleChange} required />
+          </div>
+          <div className="field-group">
+            <label>Password</label>
+            <input name="password" type="password" onChange={handleChange} required />
+          </div>
+          <button className="auth-submit" type="submit">Create Account</button>
         </form>
         <div className="auth-alt-action">
-          Already a partner? <Link to="/food-partner/login">Sign in</Link>
+          Already a partner? <a href="/food-partner/login">Sign in here</a>
         </div>
       </div>
     </div>

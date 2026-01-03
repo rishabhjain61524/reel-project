@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../../styles/auth-shared.css';
- import api from '../../api/api';// Correctly importing your central hub
+import api from '../../apoi/api.js';// Correctly importing your central hub
 import { useNavigate } from 'react-router-dom';
 
 const UserRegister = () => {
